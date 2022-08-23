@@ -1,0 +1,57 @@
+@font-face {
+  font-family: "alpina";
+  src: url("./assets/fonts/alpina.woff2") format("woff2");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "flexa";
+  src: url("./assets/fonts/flexa.woff2") format("woff2");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "manuka";
+  src: url("./assets/fonts/manuka.woff2") format("woff2");
+  font-weight: 700;
+}
+
+body {
+  border-radius: 2px solid red;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+body {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+body *::-moz-selection { 
+  background: transparent;
+}
+
+body *::selection {
+  background: transparent;
+}
+
+.animation-soundbars {
+  animation: soundbars 1s ease-in-out forwards infinite alternate;
+}
+
+@keyframes soundbars {
+  from {
+    height: 30%;
+  }
+  to {
+    height: 100%;
+  }
+}
+
