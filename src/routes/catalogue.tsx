@@ -3,9 +3,17 @@ import { useEffect, useState } from "react";
 import { desktopDir, join } from "@tauri-apps/api/path";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 
-import { Badge, Box, Center, Flex, Grid, Image } from "@chakra-ui/react";
+import { Box, Center, Flex, Grid, Image } from "@chakra-ui/react";
 
-import { Clock, Icon, Mono, Page, Pause, Play } from "../components";
+import {
+  Clock,
+  Icon,
+  Mono,
+  Page,
+  Pause,
+  Play,
+  SoundBarsAnimated,
+} from "../components";
 import {
   Album,
   AlbumDetail,
@@ -163,10 +171,20 @@ const AlbumThumbnail = ({ album }: { album: Album }) => {
         </Center>
       )}
 
-      {isAlbumPlaying && (
-        <Badge position="absolute" top={0} m={2}>
-          Playing
-        </Badge>
+      {isAlbumPlaying && !hovered && (
+        <Flex
+          position="absolute"
+          justifyContent="center"
+          alignItems="center"
+          top={0}
+          left={0}
+          w="full"
+          h="full"
+        >
+          <Icon size={6}>
+            <SoundBarsAnimated />
+          </Icon>
+        </Flex>
       )}
     </Box>
   );
