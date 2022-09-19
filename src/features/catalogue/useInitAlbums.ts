@@ -21,8 +21,6 @@ const useInitAlbums = () => {
 
         const albums = await convertAlbumData(entries);
 
-        console.log(albums);
-
         localStorage.setItem("albums", JSON.stringify(albums));
       } catch (err) {
         console.log(err);

@@ -40,8 +40,6 @@ const useMediaSession = ({
 
   useEffect(() => {
     if (mediaSession) {
-      console.log("logging");
-
       mediaSession.setActionHandler("play", onPlay);
       mediaSession.setActionHandler("pause", onPause);
       mediaSession.setActionHandler("seekbackward", onSeekBackward);
