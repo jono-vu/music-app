@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Slider, SliderFilledTrack, SliderTrack } from "@chakra-ui/react";
 
@@ -18,8 +18,18 @@ const Seeker = ({ ...props }) => {
 
   const [sliderValue, setSliderValue] = useState<number>(0);
 
+  useEffect(() => {
+    currentTime &&
+      duration &&
+      percentComplete &&
+      setSliderValue(percentComplete);
+  }, []);
+
   useInterval(() => {
-    setSliderValue(percentComplete);
+    currentTime &&
+      duration &&
+      percentComplete &&
+      setSliderValue(percentComplete);
   }, 1000);
 
   if (!currentTime || !duration) return null;

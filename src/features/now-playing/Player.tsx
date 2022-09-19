@@ -1,11 +1,24 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 
-import { Grid, HStack, Icon } from "@chakra-ui/react";
+import { Flex, Grid, HStack } from "@chakra-ui/react";
 
-import { Mono, Next, PlayPauseButton, Serif } from "../../components";
+import {
+  Icon,
+  Mono,
+  Next,
+  Pause,
+  Play,
+  SoundBars,
+  SoundBarsAnimated,
+} from "../../components";
+import {
+  AlbumDetail,
+  Seeker,
+  useModal,
+  usePlayer,
+  VolumeControls,
+} from "../../features";
 import { useInterval } from "../../utils";
-import { Seeker, usePlayer, VolumeControls } from "../now-playing";
 
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
@@ -13,7 +26,8 @@ import duration from "dayjs/plugin/duration";
 dayjs.extend(duration);
 
 const Player = () => {
-  const { audioRef, queue, queueIdx, next } = usePlayer();
+  const { open } = useModal();
+  const { audioRef, queue, queueIdx, isPlaying, playPause, next } = usePlayer();
 
   const [isHovered, setHovered] = useState<boolean>(false);
   const [trackPosition, setTrackPosition] = useState<string>("0:00");
@@ -26,19 +40,17 @@ const Player = () => {
     );
   }, 1000);
 
-  if (!queue.length) return null;
-
   const track = queue[queueIdx]?.track;
 
   return (
     <Grid
-      templateColumns="1fr 1fr 1fr"
+      templateColumns="2fr 1fr"
       alignItems="center"
       bg="brand.bg"
       color="brand.text"
-      gap={8}
-      py={6}
-      px={8}
+      gap={2}
+      py={3}
+      px={4}
       width="full"
       bottom={0}
       onMouseOver={() => {
@@ -48,36 +60,56 @@ const Player = () => {
         setHovered(false);
       }}
     >
-      <Serif _hover={{ textDecoration: "underline" }}>
-        <Link to={`/album/${queue[queueIdx]?.albumID}`}>
-          {queue[queueIdx]?.trackNumber || 0 + 1}. {track?.name}
-        </Link>
-      </Serif>
+      <Grid gridTemplateColumns="1fr 1fr" gap={4}>
+        <Flex gap={4} alignItems="flex-end">
+          <Icon size={5}>
+            {isPlaying ? <SoundBarsAnimated /> : <SoundBars />}
+          </Icon>
 
-      <Grid templateColumns="auto 1fr" gap={4}>
-        <HStack alignItems="center" gap={1}>
-          <PlayPauseButton />
-          <Mono>{trackPosition}</Mono>
-        </HStack>
-        <Grid
-          opacity={isHovered ? 1 : 0}
-          gridTemplateColumns="1fr auto"
-          alignItems="center"
-          gap={2}
-        >
-          <Seeker />
-          <Icon
-            as={Next}
-            h={4}
-            w={4}
-            onClick={async () => {
-              await next(queue, queueIdx);
+          <Mono
+            ellipsis
+            _hover={{ textDecoration: "underline" }}
+            onClick={() => {
+              open({
+                children: (
+                  <AlbumDetail albumID={queue[queueIdx]?.albumID || ""} />
+                ),
+              });
             }}
-          />
-        </Grid>
+          >
+            {queue[queueIdx]?.trackNumber || 0 + 1}. {track?.name}
+          </Mono>
+        </Flex>
+
+        {isHovered ? (
+          <HStack justifyContent={"flex-end"}>
+            <Icon
+              size={6}
+              onClick={() => {
+                playPause();
+              }}
+            >
+              {!isPlaying ? <Play /> : <Pause />}
+            </Icon>
+            <Icon
+              size={6}
+              onClick={() => {
+                next(queue, queueIdx);
+              }}
+            >
+              <Next />
+            </Icon>
+          </HStack>
+        ) : (
+          <div />
+        )}
       </Grid>
 
-      <VolumeControls show={isHovered} />
+      <Grid gridTemplateColumns="1fr auto auto" gap={8}>
+        <div />
+        {isHovered ? <VolumeControls /> : <div />}
+        <Mono>{trackPosition}</Mono>
+      </Grid>
     </Grid>
   );
 };

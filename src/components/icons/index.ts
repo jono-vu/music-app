@@ -1,3 +1,4 @@
+export * from "./Clock";
 export * from "./Muted";
 export * from "./Next";
 export * from "./Pause";

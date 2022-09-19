@@ -5,22 +5,17 @@ import {
   Slider,
   SliderFilledTrack,
   SliderTrack,
-  StackProps,
 } from "@chakra-ui/react";
 
-import { usePlayer } from "./usePlayer";
 import { Icon, Muted, Volume } from "../../components";
+import { usePlayer } from "./usePlayer";
 
 import dayjs from "dayjs";
 import dayjsDuration from "dayjs/plugin/duration";
 
 dayjs.extend(dayjsDuration);
 
-interface VolumeControlProps extends StackProps {
-  show?: boolean;
-}
-
-const VolumeControls: React.FC<VolumeControlProps> = ({ show, ...props }) => {
+const VolumeControls: React.FC = ({ ...props }) => {
   const { audioRef, muted, setMuted, volume, setVolume } = usePlayer();
 
   const [value, setValue] = useState<number>(volume * 100);
@@ -40,9 +35,9 @@ const VolumeControls: React.FC<VolumeControlProps> = ({ show, ...props }) => {
   }, [audioRef, muted]);
 
   return (
-    <HStack justify="right" {...props}>
+    <HStack {...props}>
       <Icon
-        size={4}
+        size={5}
         onClick={() => {
           setMuted(!muted);
         }}
@@ -50,26 +45,24 @@ const VolumeControls: React.FC<VolumeControlProps> = ({ show, ...props }) => {
         {muted || value === 0 ? <Muted /> : <Volume />}
       </Icon>
 
-      {show && (
-        <Slider
-          w="140px"
-          min={0}
-          max={100}
-          value={muted ? 0 : value}
-          onChange={(v) => {
-            setMuted(false);
-            setValue(v);
-          }}
-          onChangeEnd={(v) => {
-            setMuted(false);
-            setValue(v);
-          }}
-        >
-          <SliderTrack bg="brand.darkBg">
-            <SliderFilledTrack bg="brand.text" />
-          </SliderTrack>
-        </Slider>
-      )}
+      <Slider
+        w="140px"
+        min={0}
+        max={100}
+        value={muted ? 0 : value}
+        onChange={(v) => {
+          setMuted(false);
+          setValue(v);
+        }}
+        onChangeEnd={(v) => {
+          setMuted(false);
+          setValue(v);
+        }}
+      >
+        <SliderTrack bg="brand.darkBg">
+          <SliderFilledTrack bg="brand.text" />
+        </SliderTrack>
+      </Slider>
     </HStack>
   );
 };

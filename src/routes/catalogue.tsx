@@ -1,103 +1,173 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import { Box, Grid } from "@chakra-ui/react";
+import { desktopDir, join } from "@tauri-apps/api/path";
+import { convertFileSrc } from "@tauri-apps/api/tauri";
 
-import { Emphasis, Mono, Page } from "../components";
-import { Album, Compartment, Spine, useAlbums } from "../features";
-import { arrayFrom } from "../utils";
+import { Badge, Box, Center, Flex, Grid, Image } from "@chakra-ui/react";
+
+import { Clock, Icon, Mono, Page, Pause, Play } from "../components";
+import {
+  Album,
+  AlbumDetail,
+  useAlbums,
+  useModal,
+  usePlayer,
+} from "../features";
 
 const Catalogue = () => {
   const { albums } = useAlbums();
 
-  const groupedAlbums = groupAlbums(albums);
-
-  const [hoveredAlbum, setHoveredAlbum] = useState<string | undefined>(
-    undefined
-  );
-
-  const columns = 3;
-  const emptyCompartments = arrayFrom(
-    columns - (groupedAlbums.length % columns)
-  );
+  const sortedAlbums = sortAlbums(albums);
 
   return (
     <Page>
-      <Grid templateRows="auto 1fr" h="100%">
-        <Grid alignItems="end" mt={8}>
-          <Emphasis as="h1">Catalogue.</Emphasis>
-        </Grid>
-
-        <Box as="section" mt={2}>
-          <Grid templateColumns={`repeat(${columns}, 1fr)`}>
-            {groupedAlbums.map(({ key, albums }) => {
-              return (
-                <Compartment {...{ key }}>
-                  <Mono
-                    my={1}
-                    mx={2}
-                    color={hoveredAlbum ? "brand.bg" : "brand.text"}
-                    // transition="ease 0.1s"
-                  >
-                    /{key.toLowerCase()}
-                  </Mono>
-
-                  {albums.map((album) => {
-                    const isHovered = hoveredAlbum === album.id;
-
-                    return (
-                      <Box
-                        key={album.id}
-                        onMouseOver={() => {
-                          setHoveredAlbum(album.id);
-                        }}
-                        onMouseLeave={() => {
-                          if (isHovered) {
-                            setHoveredAlbum(undefined);
-                          }
-                        }}
-                      >
-                        <Spine
-                          data={album}
-                          active={isHovered || hoveredAlbum === undefined}
-                        />
-                      </Box>
-                    );
-                  })}
-                </Compartment>
-              );
-            })}
-
-            {emptyCompartments.map((_, i) => {
-              return <Compartment key={i} />;
-            })}
-          </Grid>
-        </Box>
-      </Grid>
+      <Flex as="section" p={8} gap={8} flexWrap="wrap" overflowY="auto">
+        {sortedAlbums.map((album) => {
+          return <AlbumThumbnail key={album.id} {...{ album }} />;
+        })}
+      </Flex>
     </Page>
   );
 };
 
 export { Catalogue };
 
-function groupAlbums(data: Album[]) {
-  const dataWithAlphabetKey = data.map((album) => ({
-    key: album.name[0].toUpperCase(),
-    ...album,
-  }));
-
-  let dataGroupedByAlphabetKey: any = {};
-
-  dataWithAlphabetKey.forEach(({ key, ...album }) => {
-    if (!dataGroupedByAlphabetKey[key]) {
-      dataGroupedByAlphabetKey[key] = [];
-    }
-
-    dataGroupedByAlphabetKey[key].push(album);
-  });
-
-  const dataSorted = Object.entries(dataGroupedByAlphabetKey)
-    .map(([key, albums]) => ({ key, albums: albums as Album[] }))
-    .sort((a, b) => a.key.localeCompare(b.key));
+function sortAlbums(data: Album[]) {
+  const dataSorted = data.sort((a, b) => a.name.localeCompare(b.name));
 
   return dataSorted;
 }
+
+const AlbumThumbnail = ({ album }: { album: Album }) => {
+  const { open } = useModal();
+  const { play, isPlaying, queue, queueIdx, playPause } = usePlayer();
+
+  const [cover, setCover] = useState<string | undefined>(undefined);
+  const [hovered, setHovered] = useState<boolean>(false);
+
+  useEffect(() => {
+    async function fetchCover() {
+      if (!album?.path) return;
+
+      try {
+        const fileDir = await join(
+          await desktopDir(),
+          "test-albums",
+          album?.path || "",
+          "cover.jpeg"
+        );
+
+        const file = convertFileSrc(fileDir, "asset");
+
+        setCover(file);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    fetchCover();
+  }, [album?.path]);
+
+  const isAlbumPlaying = queue[queueIdx]?.albumID === album.id;
+
+  const PlayPauseButton = () => {
+    if (!isAlbumPlaying)
+      return (
+        <Icon
+          size={16}
+          p={4}
+          onClick={() => {
+            play(album.id);
+          }}
+        >
+          <Play />
+        </Icon>
+      );
+
+    return (
+      <Icon
+        size={16}
+        p={4}
+        onClick={() => {
+          playPause();
+        }}
+      >
+        {isPlaying ? <Pause /> : <Play />}
+      </Icon>
+    );
+  };
+
+  return (
+    <Box
+      rounded="sm"
+      h="fit-content"
+      position="relative"
+      onMouseOver={() => {
+        setHovered(true);
+      }}
+      onMouseLeave={() => {
+        setHovered(false);
+      }}
+    >
+      <Image
+        src={cover}
+        filter={hovered ? "brightness(0.2) blur(1px)" : undefined}
+        transition="all 0.3s ease"
+        w={300}
+        h={300}
+        objectFit={"cover"}
+      />
+
+      <Grid
+        h="full"
+        w="full"
+        top={0}
+        p={2}
+        position="absolute"
+        gridTemplateRows="1fr auto"
+        opacity={hovered ? 1 : 0}
+        transition="opacity 0.1s ease"
+        onClick={() => {
+          open({ children: <AlbumDetail albumID={album.id} /> });
+        }}
+      >
+        <Grid gridTemplateColumns="1fr auto" gap={2} alignItems="flex-start">
+          <Mono lineHeight={1.2} fontSize="xs">
+            {album.artist}
+          </Mono>
+          <Flex gap={1} alignItems="center">
+            <Icon size={3}>
+              <Clock />
+            </Icon>
+            <Mono lineHeight={1.2} fontSize="xs">
+              {album.duration}
+            </Mono>
+          </Flex>
+        </Grid>
+        <Mono lineHeight={1.2} fontSize="lg">
+          {album.name}
+        </Mono>
+      </Grid>
+
+      {hovered && (
+        <Center
+          h="full"
+          w="full"
+          top={0}
+          position="absolute"
+          pointerEvents="none"
+        >
+          <Box pointerEvents="auto">
+            <PlayPauseButton />
+          </Box>
+        </Center>
+      )}
+
+      {isAlbumPlaying && (
+        <Badge position="absolute" top={0} m={2}>
+          Playing
+        </Badge>
+      )}
+    </Box>
+  );
+};

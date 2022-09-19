@@ -2,20 +2,18 @@ import React, { MutableRefObject, useRef } from "react";
 
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { AudioPlayerProvider } from "react-use-audio-player";
 import { RecoilRoot } from "recoil";
 
-import { Album, Catalogue, NowPlaying } from "./routes";
+import { AudioPlayer, useInitAlbums } from "./features";
+import { Catalogue } from "./routes";
 
 import "./global.css";
-import { AudioPlayer } from "./features";
 
 const colors = {
   brand: {
     text: "white",
-    bg: "#212121",
-    darkBg: "#121212",
+    bg: "#1a44cd",
+    darkBg: "#090909",
   },
 };
 
@@ -28,22 +26,15 @@ export const AudioContext = React.createContext<{
 const App = () => {
   const audioRef = useRef(new Audio());
 
+  useInitAlbums();
+
   return (
     <RecoilRoot>
       <ChakraProvider {...{ theme }}>
-        <AudioPlayerProvider>
-          <AudioContext.Provider value={{ audioRef }}>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/catalogue" element={<Catalogue />} />
-                <Route path="/now-playing" element={<NowPlaying />} />
-                <Route path="/album/:name" element={<Album />} />
-                <Route path="*" element={<Catalogue />} />
-              </Routes>
-            </BrowserRouter>
-            <AudioPlayer />
-          </AudioContext.Provider>
-        </AudioPlayerProvider>
+        <AudioContext.Provider value={{ audioRef }}>
+          <Catalogue />
+          <AudioPlayer />
+        </AudioContext.Provider>
       </ChakraProvider>
     </RecoilRoot>
   );

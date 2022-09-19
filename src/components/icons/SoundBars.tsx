@@ -2,7 +2,7 @@ import { Box, Flex } from "@chakra-ui/react";
 
 const SoundBars = ({ ...props }) => {
   return (
-    <Flex gap={1} {...props} alignItems="flex-end" h={5}>
+    <Flex gap={1} {...props} alignItems="flex-end" h={4}>
       <Box bg="white" h="33%" w="5px" />
       <Box bg="white" h="full" w="5px" />
       <Box bg="white" h="67%" w="5px" />
@@ -12,7 +12,7 @@ const SoundBars = ({ ...props }) => {
 
 const SoundBarsAnimated = ({ ...props }) => {
   return (
-    <Flex gap={1} {...props} alignItems="flex-end" h={5}>
+    <Flex gap={1} {...props} alignItems="flex-end" h={4}>
       <Box
         bg="white"
         h="full"
