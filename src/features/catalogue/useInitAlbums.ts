@@ -97,10 +97,9 @@ async function convertAlbumData(entries: FileEntry[]) {
       });
 
       const albumDuration = durationArray.reduce((a, b) => a + b, 0);
-
       const albumDurationFormatted =
         albumDuration > 3600
-          ? dayjs.duration(albumDuration * 1000).format("h:mm:ss")
+          ? dayjs.duration(albumDuration * 1000).format("H:mm:ss")
           : dayjs.duration(albumDuration * 1000).format("m:ss");
 
       const album = {
