@@ -13,7 +13,6 @@ import {
 } from "../../components";
 import {
   AlbumDetail,
-  Seeker,
   useModal,
   usePlayer,
   VolumeControls,
@@ -41,6 +40,7 @@ const Player = () => {
   }, 1000);
 
   const track = queue[queueIdx]?.track;
+  const renderTrackNumber = `${(queue[queueIdx]?.trackNumber || 0) + 1}.`;
 
   return (
     <Grid
@@ -77,7 +77,7 @@ const Player = () => {
               });
             }}
           >
-            {queue[queueIdx]?.trackNumber || 0 + 1}. {track?.name}
+            {renderTrackNumber} {track?.name}
           </Mono>
         </Flex>
 
