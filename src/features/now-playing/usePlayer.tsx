@@ -46,16 +46,7 @@ const usePlayer = () => {
     const track = queueTrack.track;
 
     try {
-      const fileDir = await join(
-        await desktopDir(),
-        "test-albums",
-        queueTrack.albumPath,
-        track.path
-      );
-
-      const file = convertFileSrc(fileDir);
-
-      setAudioSrc(normalisePath(file));
+      setAudioSrc(track.src || "");
       setPlayer({ ...player, isPlaying: true });
 
       audioRef.current.load();
@@ -193,7 +184,3 @@ const usePlayer = () => {
 };
 
 export { usePlayer };
-
-function normalisePath(path: string) {
-  return path.replace("%2F", "/");
-}

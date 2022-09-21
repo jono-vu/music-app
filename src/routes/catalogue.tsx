@@ -17,6 +17,7 @@ import {
 import {
   Album,
   AlbumDetail,
+  formatAlbumDuration,
   useAlbums,
   useModal,
   usePlayer,
@@ -148,7 +149,7 @@ const AlbumThumbnail = ({ album }: { album: Album }) => {
               <Clock />
             </Icon>
             <Mono lineHeight={1.2} fontSize="xs">
-              {album.duration}
+              {formatAlbumDuration(album)}
             </Mono>
           </Flex>
         </Grid>

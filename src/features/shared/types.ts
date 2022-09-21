@@ -5,7 +5,6 @@ export type Album = {
   };
   name: string;
   artist: string;
-  duration: string;
   path: string;
   tracks: Track[];
 };
@@ -13,5 +12,6 @@ export type Album = {
 export type Track = {
   name: string;
   path: string;
-  duration: string;
+  src?: string;
+  duration: number;
 };

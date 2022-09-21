@@ -14,6 +14,8 @@ import {
 } from "../../components";
 import {
   Album as AlbumType,
+  formatAlbumDuration,
+  formatTrackDuration,
   getAlbum,
   Track,
   useAlbums,
@@ -71,7 +73,7 @@ const AlbumDetail = ({ albumID }: { albumID: string }) => {
             {album.artist}
           </Mono>
         </VStack>
-        <Mono>{album.duration}</Mono>
+        <Mono>{formatAlbumDuration(album)}</Mono>
       </HStack>
 
       <Flex
@@ -126,7 +128,7 @@ const TrackRow = ({
   const Actions = () => {
     if (!isHovered) {
       if (!isTrackPlaying) {
-        return <Mono>{track.duration}</Mono>;
+        return <Mono>{formatTrackDuration(track.duration)}</Mono>;
       }
       return isPlaying ? <SoundBarsAnimated /> : <SoundBars />;
     }

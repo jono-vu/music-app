@@ -1,10 +1,10 @@
-import React, { MutableRefObject, useRef } from "react";
+import React, { MutableRefObject, useEffect, useRef } from "react";
 
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 
 import { RecoilRoot } from "recoil";
 
-import { AudioPlayer, useInitAlbums } from "./features";
+import { AudioPlayer, initAlbums } from "./features";
 import { Catalogue } from "./routes";
 
 import "./global.css";
@@ -26,14 +26,11 @@ export const AudioContext = React.createContext<{
 const App = () => {
   const audioRef = useRef(new Audio());
 
-  useInitAlbums();
-
   return (
     <RecoilRoot>
       <ChakraProvider {...{ theme }}>
         <AudioContext.Provider value={{ audioRef }}>
-          <Catalogue />
-          <AudioPlayer />
+          <Content />
         </AudioContext.Provider>
       </ChakraProvider>
     </RecoilRoot>
@@ -41,3 +38,20 @@ const App = () => {
 };
 
 export default App;
+
+const Content = () => {
+  useEffect(() => {
+    async function fetchAlbums() {
+      await initAlbums();
+    }
+
+    fetchAlbums();
+  }, []);
+
+  return (
+    <>
+      <Catalogue />
+      <AudioPlayer />
+    </>
+  );
+};
