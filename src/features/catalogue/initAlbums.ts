@@ -4,7 +4,6 @@ import { convertFileSrc } from "@tauri-apps/api/tauri";
 
 import { Album, getAlbumID, Track } from "../../features";
 
-import dayjs from "dayjs";
 import { normalisePath } from "../../utils";
 
 interface TrackConstructor {
@@ -61,23 +60,12 @@ async function convertAlbumData(entries: FileEntry[]) {
           entry.name?.startsWith("cover") && !entry.name.endsWith(".mp3")
       )[0];
 
-      const albumDuration = tracksWithDuration.reduce(
-        (a, b) => a + (b.duration || 0),
-        0
-      );
-
-      const albumDurationFormatted =
-        albumDuration > 3600
-          ? dayjs.duration(albumDuration * 1000).format("H[h] mm[m]")
-          : dayjs.duration(albumDuration * 1000).format("m[m] s[s]");
-
       const album = {
         id: getAlbumID(name, artist),
         name,
         artist,
         cover,
         path: `${name} - ${artist}`,
-        duration: albumDurationFormatted,
         tracks: tracksWithDuration,
       };
 
