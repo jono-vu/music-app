@@ -14,7 +14,7 @@ import {
   TracksHashMap,
 } from "../../features";
 
-import { normalisePath } from "../../utils";
+import { convertArrToHashMap, normalisePath } from "../../utils";
 
 async function initAlbums() {
   try {
@@ -168,15 +168,6 @@ async function getTracksDuration(
   }
 
   return tracks;
-}
-
-function convertArrToHashMap<TInput, TData>(
-  array: TInput[],
-  key: keyof TInput
-) {
-  return array.reduce((a, item) => {
-    return { ...a, [item[key] as unknown as string]: item };
-  }, {}) as TData;
 }
 
 function convertAlbumsToHashMap(albums: Album[]) {
