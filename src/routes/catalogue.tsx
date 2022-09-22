@@ -1,7 +1,4 @@
-import { useEffect, useState } from "react";
-
-import { desktopDir, join } from "@tauri-apps/api/path";
-import { convertFileSrc } from "@tauri-apps/api/tauri";
+import { useState } from "react";
 
 import { Box, Center, Flex, Grid, Image } from "@chakra-ui/react";
 
@@ -51,31 +48,7 @@ const AlbumThumbnail = ({ album }: { album: Album }) => {
   const { open } = useModal();
   const { play, isPlaying, queue, queueIdx, playPause } = usePlayer();
 
-  const [cover, setCover] = useState<string | undefined>(undefined);
   const [hovered, setHovered] = useState<boolean>(false);
-
-  useEffect(() => {
-    async function fetchCover() {
-      if (!album?.path) return;
-
-      try {
-        const fileDir = await join(
-          await desktopDir(),
-          "test-albums",
-          album?.path || "",
-          "cover.jpeg"
-        );
-
-        const file = convertFileSrc(fileDir, "asset");
-
-        setCover(file);
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-    fetchCover();
-  }, [album?.path]);
 
   const isAlbumPlaying = queue[queueIdx]?.albumID === album.id;
 
@@ -119,7 +92,7 @@ const AlbumThumbnail = ({ album }: { album: Album }) => {
       }}
     >
       <Image
-        src={cover}
+        src={album.cover.path}
         filter={hovered ? "brightness(0.2) blur(1px)" : undefined}
         transition="all 0.3s ease"
         w={300}

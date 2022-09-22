@@ -1,7 +1,4 @@
-import { useEffect, useState } from "react";
-
-import { desktopDir, join } from "@tauri-apps/api/path";
-import { convertFileSrc } from "@tauri-apps/api/tauri";
+import { useState } from "react";
 
 import { Box, Flex, Grid, HStack, Icon, Image, VStack } from "@chakra-ui/react";
 
@@ -27,31 +24,7 @@ const AlbumDetail = ({ albumID }: { albumID: string }) => {
 
   const album = getAlbum(albums, albumID);
 
-  const [cover, setCover] = useState<string | undefined>(undefined);
   const [hoveredIdx, setHoveredIdx] = useState<number | undefined>(undefined);
-
-  useEffect(() => {
-    async function fetchCover() {
-      if (!album?.path) return;
-
-      try {
-        const fileDir = await join(
-          await desktopDir(),
-          "test-albums",
-          album?.path || "",
-          "cover.jpeg"
-        );
-
-        const file = convertFileSrc(fileDir, "asset");
-
-        setCover(file);
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-    fetchCover();
-  }, [album?.path]);
 
   if (!album) return <Box />;
 
@@ -60,7 +33,7 @@ const AlbumDetail = ({ albumID }: { albumID: string }) => {
       <Image
         mx={8}
         fallback={<Box bg="brand.darkBg" h={150} w={150} />}
-        src={cover}
+        src={album.cover.path}
         h={150}
         w={150}
         objectFit="cover"

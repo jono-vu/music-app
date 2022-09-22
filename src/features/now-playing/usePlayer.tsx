@@ -1,8 +1,5 @@
 import { useContext, useMemo } from "react";
 
-import { desktopDir, join } from "@tauri-apps/api/path";
-import { convertFileSrc } from "@tauri-apps/api/tauri";
-
 import { useRecoilState } from "recoil";
 
 import { AudioContext } from "../../App";
@@ -55,27 +52,11 @@ const usePlayer = () => {
       };
 
       if ("mediaSession" in navigator) {
-        let cover = "";
-
-        try {
-          const fileDir = await join(
-            await desktopDir(),
-            "test-albums",
-            album?.path || "",
-            "cover.jpeg"
-          );
-
-          const file = convertFileSrc(fileDir, "asset");
-          cover = file;
-        } catch (err) {
-          console.log(err);
-        }
-
         navigator.mediaSession.metadata = new MediaMetadata({
           title: track.name,
           artist: album?.artist,
           album: album?.name,
-          artwork: [{ src: cover }],
+          artwork: [{ src: album?.cover.path || "" }],
         });
 
         navigator.mediaSession.setActionHandler("play", async () => {

@@ -58,16 +58,18 @@ async function convertAlbumData(entries: FileEntry[]) {
         tracksWithSrc
       );
 
-      const cover = entry.children.filter(
+      const coverPath = entry.children.filter(
         (entry) =>
           entry.name?.startsWith("cover") && !entry.name.endsWith(".mp3")
-      )[0];
+      )[0].path;
+
+      const coverSrc = await getAlbumCoverSrc(albumPath, coverPath);
 
       const album = {
         id: getAlbumID(name, artist),
         name,
         artist,
-        cover,
+        cover: { path: coverSrc },
         path: `${name} - ${artist}`,
         tracks: tracksWithDuration,
       };
@@ -79,6 +81,26 @@ async function convertAlbumData(entries: FileEntry[]) {
   }
 
   return albumsData;
+}
+
+async function getAlbumCoverSrc(albumPath: string, coverPath?: string) {
+  if (albumPath) return "";
+
+  try {
+    const fileDir = await join(
+      await desktopDir(),
+      "test-albums",
+      albumPath,
+      coverPath || ""
+    );
+
+    const file = convertFileSrc(fileDir, "asset");
+
+    return file;
+  } catch (err) {
+    console.log(err);
+    return "";
+  }
 }
 
 function getTrackNumber(track: Partial<Track>) {
