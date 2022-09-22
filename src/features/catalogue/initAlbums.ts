@@ -16,9 +16,11 @@ import {
 
 import { convertArrToHashMap, normalisePath } from "../../utils";
 
+const ALBUM_DIRECTORY = "test-albums"; //@TODO add to preferences
+
 async function initAlbums() {
   try {
-    const entries = await readDir("test-albums", {
+    const entries = await readDir(ALBUM_DIRECTORY, {
       dir: BaseDirectory.Desktop,
       recursive: true,
     });
@@ -89,7 +91,7 @@ async function getAlbumCoverSrc(albumPath: string, coverPath?: string) {
   try {
     const fileDir = await join(
       await desktopDir(),
-      "test-albums",
+      ALBUM_DIRECTORY,
       albumPath,
       coverPath || ""
     );
@@ -138,7 +140,7 @@ async function getTracksSrc(albumPath: string, tracks: Array<Partial<Track>>) {
     try {
       const fileDir = await join(
         await desktopDir(),
-        "test-albums",
+        ALBUM_DIRECTORY,
         albumPath,
         track.path || ""
       );
