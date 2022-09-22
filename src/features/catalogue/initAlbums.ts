@@ -2,18 +2,19 @@ import { BaseDirectory, FileEntry, readDir } from "@tauri-apps/api/fs";
 import { desktopDir, join } from "@tauri-apps/api/path";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 
-import { Album, getAlbumID, Track } from "../../features";
+import {
+  Album,
+  AlbumHashMapValue,
+  AlbumsHashMap,
+  getAlbumID,
+  getStore,
+  setStore,
+  StoreKeys,
+  Track,
+  TracksHashMap,
+} from "../../features";
 
 import { normalisePath } from "../../utils";
-
-interface TrackConstructor {
-  name: string;
-  path: string;
-  children?: FileEntry[] | undefined;
-  src?: string;
-  duration?: number;
-  number: number;
-}
 
 async function initAlbums() {
   try {
@@ -23,7 +24,9 @@ async function initAlbums() {
     });
 
     const albums = await convertAlbumData(entries);
-    localStorage.setItem("albums", JSON.stringify(albums));
+    const albumsHashMap = convertAlbumsToHashMap(albums);
+
+    setStore(StoreKeys.albums, albumsHashMap);
   } catch (err) {
     console.log(err);
   }
@@ -78,18 +81,18 @@ async function convertAlbumData(entries: FileEntry[]) {
   return albumsData;
 }
 
-function getTrackNumber(track: Partial<TrackConstructor>) {
+function getTrackNumber(track: Partial<Track>) {
   return Number(track.name?.split(".")[0]);
 }
 
-function getTrackName(track: Partial<TrackConstructor>) {
+function getTrackName(track: Partial<Track>) {
   return (
     track.name?.replace(`${getTrackNumber(track)}. `, "").replace(".mp3", "") ||
     ""
   );
 }
 
-function getTrackNumbers(tracks: Array<Partial<TrackConstructor>>) {
+function getTrackNumbers(tracks: Array<Partial<Track>>) {
   const tracksSorted = tracks.sort(
     (a, b) => getTrackNumber(a) - getTrackNumber(b)
   );
@@ -104,10 +107,7 @@ function getTrackNumbers(tracks: Array<Partial<TrackConstructor>>) {
   return tracksWithNumbers;
 }
 
-async function getTracksSrc(
-  albumPath: string,
-  tracks: Array<Partial<TrackConstructor>>
-) {
+async function getTracksSrc(albumPath: string, tracks: Array<Partial<Track>>) {
   let tracksWithSrc = [];
 
   for (let i = 0; i < tracks.length; i++) {
@@ -137,44 +137,63 @@ async function getTracksSrc(
 
 async function getTracksDuration(
   albumID: string,
-  tracks: Array<Partial<TrackConstructor>>
+  tracks: Array<Partial<Track>>
 ) {
+  const albums = getStore<AlbumsHashMap>(StoreKeys.albums);
+
   for (let i = 0; i < tracks.length; i++) {
     const track = tracks[i];
 
-    const audio = new Audio();
-    audio.preload = "metadata";
+    const duration = albums[albumID]?.tracks[track.name || ""]?.duration;
 
-    audio.src = track.src || "";
-    audio.addEventListener(
-      "loadedmetadata",
-      (e) => {
-        const albums: Album[] = JSON.parse(
-          localStorage.getItem("albums") || "[]"
-        );
+    if (!duration) {
+      const audio = new Audio();
+      audio.preload = "metadata";
+      audio.src = track.src || "";
 
-        let newAlbums: Album[] = albums;
+      audio.addEventListener(
+        "loadedmetadata",
+        () => {
+          const albums = getStore<AlbumsHashMap>(StoreKeys.albums);
+          let newAlbums = albums;
 
-        albums.forEach((album, albumIdx) => {
-          if (album.id === albumID) {
-            tracks.forEach((item, trackIdx) => {
-              if (track.name === item.name) {
-                console.log(audio.duration);
+          if (!audio.duration) return;
 
-                newAlbums[albumIdx].tracks[trackIdx] = {
-                  ...(track as Track),
-                  duration: audio.duration,
-                };
-              }
-            });
-          }
-        });
-
-        localStorage.setItem("albums", JSON.stringify(newAlbums));
-      },
-      true
-    );
+          newAlbums[albumID].tracks[track.name || ""].duration = audio.duration;
+          setStore(StoreKeys.albums, newAlbums);
+        },
+        true
+      );
+    }
   }
 
   return tracks;
+}
+
+function convertArrToHashMap<TInput, TData>(
+  array: TInput[],
+  key: keyof TInput
+) {
+  return array.reduce((a, item) => {
+    return { ...a, [item[key] as unknown as string]: item };
+  }, {}) as TData;
+}
+
+function convertAlbumsToHashMap(albums: Album[]) {
+  const albumsInput = albums.map(({ tracks, ...album }) => {
+    const tracksHashMap = convertArrToHashMap<Track, TracksHashMap>(
+      tracks as Track[],
+      "name"
+    );
+
+    return {
+      ...album,
+      tracks: tracksHashMap,
+    };
+  });
+
+  return convertArrToHashMap<AlbumHashMapValue, AlbumsHashMap>(
+    albumsInput,
+    "id"
+  );
 }

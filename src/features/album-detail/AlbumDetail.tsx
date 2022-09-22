@@ -111,7 +111,7 @@ const TrackRow = ({
   album,
   isHovered,
 }: {
-  track: Track;
+  track: Track | Partial<Track>;
   album: AlbumType;
   isHovered: boolean;
 }) => {
@@ -128,7 +128,7 @@ const TrackRow = ({
   const Actions = () => {
     if (!isHovered) {
       if (!isTrackPlaying) {
-        return <Mono>{formatTrackDuration(track.duration)}</Mono>;
+        return <Mono>{formatTrackDuration(track.duration || 0)}</Mono>;
       }
       return isPlaying ? <SoundBarsAnimated /> : <SoundBars />;
     }

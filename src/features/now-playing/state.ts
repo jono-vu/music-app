@@ -5,10 +5,10 @@ import { Track } from "../shared";
 
 export type NowPlaying =
   | {
-      path: string;
+      path?: string;
       albumID: string;
       albumPath: string;
-      track: Track;
+      track: Track | Partial<Track>;
       trackNumber: number;
       file?: string;
     }
