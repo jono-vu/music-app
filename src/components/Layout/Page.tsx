@@ -2,8 +2,8 @@ import React from "react";
 
 import { Grid } from "@chakra-ui/react";
 
+import { Footer } from "../../components";
 import { Modal } from "../../features";
-import { Footer } from "../Layout";
 
 const Page: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (

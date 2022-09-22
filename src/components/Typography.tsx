@@ -1,22 +1,22 @@
 import { Text } from "@chakra-ui/react";
 
-const ellipsisOptions = {
-  overflow: "hidden",
-  whiteSpace: "nowrap",
-  textOverflow: "clip",
-};
-
 type Any = any;
 
 interface TypographyProps extends Any {
   ellipsis?: boolean;
 }
 
+const ellipsisOptions: Partial<TypographyProps> = {
+  overflow: "hidden",
+  whiteSpace: "nowrap",
+  textOverflow: "clip",
+};
+
 const Serif = ({ ellipsis, ...props }: TypographyProps) => (
   <Text
     fontFamily="alpina"
     letterSpacing={0.3}
-    {...(ellipsis && { ...(ellipsisOptions as any) })}
+    {...(ellipsis && { ...ellipsisOptions })}
     {...props}
   />
 );
@@ -24,7 +24,7 @@ const Serif = ({ ellipsis, ...props }: TypographyProps) => (
 const Mono = ({ ellipsis, ...props }: TypographyProps) => (
   <Text
     fontFamily="flexa"
-    {...(ellipsis && { ...(ellipsisOptions as any) })}
+    {...(ellipsis && { ...ellipsisOptions })}
     {...props}
   />
 );
@@ -34,7 +34,7 @@ const Emphasis = ({ ellipsis, ...props }: TypographyProps) => (
     fontFamily="manuka"
     fontSize="100pt"
     lineHeight={1.1}
-    {...(ellipsis && { ...(ellipsisOptions as any) })}
+    {...(ellipsis && { ...ellipsisOptions })}
     {...props}
   />
 );

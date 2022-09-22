@@ -14,7 +14,7 @@ function getStore<TData>(key: string, fallback?: TData) {
   return parse(value) as TData;
 }
 
-function setStore(key: string, data: any) {
+function setStore<TData>(key: string, data: TData) {
   store.setItem(key, stringify(data));
 }
 
