@@ -4,6 +4,7 @@ const store = localStorage;
 
 enum StoreKeys {
   albums = "ALBUMS",
+  albumDirectory = "ALBUM_DIRECTORY",
 }
 
 function getStore<TData>(key: string, fallback?: TData) {

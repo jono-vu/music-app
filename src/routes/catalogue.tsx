@@ -1,9 +1,18 @@
 import { useState } from "react";
 
-import { Box, Center, Flex, Grid, Image } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  Grid,
+  Image,
+  VStack,
+} from "@chakra-ui/react";
 
 import {
   Clock,
+  Cog,
   Icon,
   Mono,
   Page,
@@ -15,23 +24,63 @@ import {
   Album,
   AlbumDetail,
   formatAlbumDuration,
+  Preferences,
   useAlbums,
   useModal,
   usePlayer,
 } from "../features";
 
 const Catalogue = () => {
+  const { open } = useModal();
   const { albums } = useAlbums();
 
   const sortedAlbums = sortAlbums(albums);
 
+  if (!albums || !albums.length) {
+    return (
+      <Page>
+        <Center>
+          <VStack gap={2}>
+            <Mono>
+              There were no albums found in your directory. Change the folder in
+              your preferences
+            </Mono>
+            <Button
+              bg="brand.bg"
+              onClick={() => {
+                open({
+                  children: <Preferences />,
+                });
+              }}
+            >
+              <Mono>Go to preferences</Mono>
+            </Button>
+          </VStack>
+        </Center>
+      </Page>
+    );
+  }
+
   return (
     <Page>
-      <Flex as="section" p={8} gap={8} flexWrap="wrap" overflowY="auto">
-        {sortedAlbums.map((album) => {
-          return <AlbumThumbnail key={album.id} {...{ album }} />;
-        })}
-      </Flex>
+      <Grid p={8} gap={8} gridTemplateRows="auto 1fr">
+        <Flex justifyContent="right">
+          <Icon
+            onClick={() => {
+              open({
+                children: <Preferences />,
+              });
+            }}
+          >
+            <Cog />
+          </Icon>
+        </Flex>
+        <Flex as="section" gap={8} flexWrap="wrap" overflowY="auto">
+          {sortedAlbums.map((album) => {
+            return <AlbumThumbnail key={album.id} {...{ album }} />;
+          })}
+        </Flex>
+      </Grid>
     </Page>
   );
 };

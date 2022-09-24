@@ -17,11 +17,18 @@
         "scope": ["$APP/*", "$DESKTOP/*"],
         "all": true
       },
-      "path": { "all": true },
+      "path": {
+        "all": true
+      },
       "protocol": {
         "asset": true,
         "all": true,
         "assetScope": ["$APP/*", "$DESKTOP/*"]
+      },
+      "dialog": {
+        "all": true,
+        "open": true,
+        "save": true
       }
     },
     "bundle": {

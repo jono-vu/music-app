@@ -1,5 +1,5 @@
-import { BaseDirectory, FileEntry, readDir } from "@tauri-apps/api/fs";
-import { desktopDir, join } from "@tauri-apps/api/path";
+import { FileEntry, readDir } from "@tauri-apps/api/fs";
+import { join } from "@tauri-apps/api/path";
 import { convertFileSrc } from "@tauri-apps/api/tauri";
 
 import {
@@ -16,12 +16,11 @@ import {
 
 import { convertArrToHashMap, normalisePath } from "../../utils";
 
-const ALBUM_DIRECTORY = "test-albums"; //@TODO add to preferences
-
 async function initAlbums() {
+  const albumDirectory = getStore<string>(StoreKeys.albumDirectory);
+
   try {
-    const entries = await readDir(ALBUM_DIRECTORY, {
-      dir: BaseDirectory.Desktop,
+    const entries = await readDir(albumDirectory, {
       recursive: true,
     });
 
@@ -86,15 +85,12 @@ async function convertAlbumData(entries: FileEntry[]) {
 }
 
 async function getAlbumCoverSrc(albumPath: string, coverPath?: string) {
+  const albumDirectory = getStore<string>(StoreKeys.albumDirectory);
+
   if (albumPath) return "";
 
   try {
-    const fileDir = await join(
-      await desktopDir(),
-      ALBUM_DIRECTORY,
-      albumPath,
-      coverPath || ""
-    );
+    const fileDir = await join(albumDirectory, albumPath, coverPath || "");
 
     const file = convertFileSrc(fileDir, "asset");
 
@@ -132,18 +128,15 @@ function getTrackNumbers(tracks: Array<Partial<Track>>) {
 }
 
 async function getTracksSrc(albumPath: string, tracks: Array<Partial<Track>>) {
+  const albumDirectory = getStore<string>(StoreKeys.albumDirectory);
+
   let tracksWithSrc = [];
 
   for (let i = 0; i < tracks.length; i++) {
     const track = tracks[i];
 
     try {
-      const fileDir = await join(
-        await desktopDir(),
-        ALBUM_DIRECTORY,
-        albumPath,
-        track.path || ""
-      );
+      const fileDir = await join(albumDirectory, albumPath, track.path || "");
 
       const file = convertFileSrc(fileDir);
       const src = normalisePath(file);
