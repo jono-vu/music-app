@@ -43,6 +43,7 @@ async function convertAlbumData(entries: FileEntry[]) {
 
     if (entry.children && entry.name) {
       const [name, artist] = entry.name.split(" - ");
+
       const albumPath = `${name} - ${artist}`;
       const albumID = `${name}-${artist}`;
 
@@ -59,19 +60,14 @@ async function convertAlbumData(entries: FileEntry[]) {
         tracksWithSrc
       );
 
-      const coverPath = entry.children.filter(
-        (entry) =>
-          entry.name?.startsWith("cover") && !entry.name.endsWith(".mp3")
-      )[0].path;
-
-      const coverSrc = await getAlbumCoverSrc(albumPath, coverPath);
+      const coverSrc = await getAlbumCoverSrc(entry);
 
       const album = {
         id: getAlbumID(name, artist),
         name,
         artist,
         cover: { path: coverSrc },
-        path: `${name} - ${artist}`,
+        path: albumPath,
         tracks: tracksWithDuration,
       };
 
@@ -84,15 +80,15 @@ async function convertAlbumData(entries: FileEntry[]) {
   return albumsData;
 }
 
-async function getAlbumCoverSrc(albumPath: string, coverPath?: string) {
-  const albumDirectory = getStore<string>(StoreKeys.albumDirectory);
+async function getAlbumCoverSrc(entry: FileEntry) {
+  const coverPath = entry.children?.find((entry) => {
+    return entry.name?.startsWith("cover") && !entry.name.endsWith(".mp3");
+  })?.path;
 
-  if (albumPath) return "";
+  if (!coverPath) return "";
 
   try {
-    const fileDir = await join(albumDirectory, albumPath, coverPath || "");
-
-    const file = convertFileSrc(fileDir, "asset");
+    const file = convertFileSrc(coverPath, "asset");
 
     return file;
   } catch (err) {
